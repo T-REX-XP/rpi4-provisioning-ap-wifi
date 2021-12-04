@@ -1,4 +1,6 @@
 #!/bin/bash
+#disable wlan0 at first))
+nmcli dev disconnect wlan0
 wifidev="wlan0"
 ip_gateway="10.0.0.1"
 set_static_ip(){
@@ -8,11 +10,11 @@ set_static_ip(){
         else
                 echo "no config --> Try to set"
                 x=1
-                while ! ifconfig "$wifidev"  | grep  "inet $ip_gateway" 
+                while ! ifconfig "$wifidev"  | grep  "inet $ip_gateway"
                 do
                     echo "Try config IP $ip_gateway on AP interface at  $x times"
-                    x=$(( $x + 1 ))                     
-                     sudo ifconfig "$wifidev" "$ip_gateway" netmask 255.255.255.0 
+                    x=$(( $x + 1 ))
+                     sudo ifconfig "$wifidev" "$ip_gateway" netmask 255.255.255.0
                      sleep 5
                      if [ $x -gt 10 ]
                      then
@@ -37,7 +39,7 @@ start_dnsmasq(){
                 echo "dnsmasq already started. Kill all and restart"
                 sudo killall dnsmasq
                 sudo dnsmasq -C ../config_ap/dnsmasq.conf -d
-        fi    
+        fi
 }
 
 sudo ifconfig "$wifidev" down
@@ -47,9 +49,9 @@ echo "1.setup static IP address $ip_gateway"
 set_static_ip
 
 echo "2.start AP"
-#  start subshell to  fork thread http://tldp.org/LDP/abs/html/subshells.html 
+#  start subshell to  fork thread http://tldp.org/LDP/abs/html/subshells.html
 #  Running parallel processes in subshells by using &
 start_hostapd & # fork this process and run parallel
-sleep 60
+sleep 20
 echo "start dnsmag=====>"
-start_dnsmasq # fork this process and run parallel
+start_dnsmasq &# fork this process and run parallel
